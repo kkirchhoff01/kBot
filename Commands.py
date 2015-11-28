@@ -4,29 +4,31 @@ import urllib
 import urlparse
 import mechanize
 
+command_trigger = '.'
+
 def get_command(cmd, msg):
-	if cmd == '.help':
+	if cmd == command_trigger + 'help':
 		return "For a list of commands use .commands. To use kBot try: .<command> <input>"
-	elif cmd == '.commands':
+	elif cmd == command_trigger + 'commands':
 		return 'Commands: ' + str(get_command_list()).strip('[]')
-	elif cmd == '.g':
+	elif cmd == command_trigger + 'g':
 		return google(msg)
-	elif cmd == '.w' or cmd == '.wiki':
+	elif cmd == command_trigger + 'w' or cmd == command_trigger + 'wiki':
 		return wikipedia(msg)
-	elif cmd == '.def':
+	elif cmd == command_trigger + 'def':
 		return dictionary_search(msg)
-	elif cmd == '.about':
+	elif cmd == command_trigger + 'about':
 		return "This bot was written in Python by Kevin Kirchhoff"
-	elif cmd == '.convert':
+	elif cmd == command_trigger + 'convert':
 		msg = msg.split(' ')
 		if type(msg[0]) == float or type(msg[0]) == int:
 			try:
 				return conver_units(msg[0], msg[1], msg[2])
 			except:
-				return "Usage: .convert <value> <units to convert from> <units to convert to>"
+				return "Usage: %sconvert <value> <units to convert from> <units to convert to>" % command_trigger
 		else:
-			return "Usage: .convert <value> <units to convert from> <units to convert to>"
-	elif cmd == '.eval':
+			return "Usage: %sconvert <value> <units to convert from> <units to convert to>" % command_trigger
+	elif cmd == command_trigger + 'eval':
 		if ' ' in msg:
 			lang = msg[0:msg.index(' ')]
 			msg = msg.split(lang)[1]
@@ -38,11 +40,11 @@ def get_command(cmd, msg):
 		pass
 
 def get_command_list():
-	return ['.help', '.commands', '.g', '.w', '.wiki', '.about', '.convert', '.eval', '.def']
+	return [command_trigger + 'help', command_trigger + 'commands', command_trigger + 'g', command_trigger + 'w', command_trigger + 'wiki', command_trigger + 'about', command_trigger + 'convert', command_trigger + 'eval', command_trigger + 'def']
 
 def google(search_input):
 	if search_input == '':
-		return 'Use .help for help.'
+		return command_trigger +  'Use help for help.'
 	query = urllib.urlencode({'q': search_input})
 	url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&' + query
 	response = urllib.urlopen(url)
@@ -55,7 +57,7 @@ def google(search_input):
 #Use wikipedia python library? Or do it the right way?
 def wikipedia(search_input):
 	if search_input == '':
-		return 'Use .help for help.'
+		return 'Use %shelp for help.' % command_trigger 
 	return 'Wiki search is still in progress!'
 
 #Keep dict file or use website
@@ -86,7 +88,7 @@ def dictionary_search(search_input):
 #Get code from submit site using form info
 def evaluate(language, eval_input):
 	if search_input == '':
-		return 'Use .help for help.'
+		return 'Use %shelp for help.' % command_trigger 
 	value = ""
 	if language.lower() == 'c':
 		value = "c/gcc-4.4.3"
@@ -130,5 +132,5 @@ def evaluate(language, eval_input):
 
 def convert_units(value, unit_input, unit_output):
 	if search_input == '':
-		return 'Use .help for help.'
+		return 'Use %shelp for help.' % command_trigger
 	return "Unit converter is still in progress!"
