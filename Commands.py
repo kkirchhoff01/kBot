@@ -69,21 +69,11 @@ def dictionary_search(search_input):
         url = 'http://dictionary.reference.com/browse/' + search_input
         response = urllib.urlopen(url)
         search_results = response.read()
-        try:
-            result = search_results.split('def-content')[1]
-            final_result = result[3:result.index('div')-3]
-            #if '.' in final_result:
-            #    final_result = final_result[0:final_result.index('.')]
-            #elif ':' in final_resut:
-            #    final_result = final_result[0:final_result.index(':')]
-            #print final_result
-            return final_result
-        except ValueError:
-            return 'Definition not found.'
-        except IndexError:
-            return 'Definition not found.'
-        except:
-            pass
+        content = re.findall(r'<div class="def-content">(.*?)</div>', search_results, re.DOTALL)
+        if len(content) != 0:
+            return content[0].strip('\n')
+        else:
+            return 'Definition not found'
 
 #Get code from submit site using form info
 def evaluate(language, eval_input):
