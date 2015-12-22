@@ -123,12 +123,11 @@ def evaluate(language, eval_input):
     content = res.read()
     content = content.split('Output')[2].split('Fork')[0]
     br.close()
-    content = re.sub('<.*?>','', content).split('\n')
-    content = [c for c in content if c != '' and c != ' ' and c != '  ']
+    content = re.findall(r'<p.*?>(.*?)</p.*?>', content, re.DOTALL)
     if 'OK' in content[len(content) -1]:
-        return content[0].strip('    ')
+        return content[0].strip('\n')
     else:
-        return content[len(content)-1].strip('    ')
+        return content[len(content)-1].strip('\n')
 
 def convert_units(value, unit_input, unit_output):
     if value == '':
