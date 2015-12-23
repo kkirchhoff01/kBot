@@ -3,6 +3,7 @@ import Commands
 import time
 import socket 
 import time
+import link_reader
 
 class Bot:
     # Some basic variables used to configure the bot        
@@ -16,7 +17,6 @@ class Bot:
         self.ircsock.connect((self.server, 6667))
         self.ircsock.send("USER "+ self.botnick +" "+ self.botnick +" "+ self.botnick +" :This bot is Kevin's\n")
         self.ircsock.send("NICK "+ self.botnick +"\n")
-        #self.joinchan(self.channel)
 
     def get_server(self):
         return self.server
@@ -43,10 +43,6 @@ class Bot:
         self.ircsock.send("PRIVMSG "+ self.channel +" :Hello!\n")
 
     def command(self, command_msg, user_name):
-        #command_msg = command_msg.split(":")
-        #command_msg = command_msg[1]
-        #print command_msg[0:command_msg.index(' ')]
-        #command_item = c if command_msg.index(c) == 0 for c in commands.get_command_list()
         if any(command_item in command_msg for command_item in Commands.get_command_list()):
             try:
                 cmd = command_msg.split(' ')[0]
@@ -60,7 +56,9 @@ class Bot:
             except Exception, err:
                 print traceback.print_stack()
                 self.ircsock.send("PRIVMSG " + self.channel + " :Something went wrong!\n")
-            
+        elif link_reader.check_link(command_msg):
+            link = link_reader.check_link(command_msg);
+            self.ircsock.send("PRIVMSG " + self.channel + " :[URL] "+ link_reader.read_link(link) +"\n")
               
     def log(self, message):
         timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
@@ -83,16 +81,10 @@ if __name__ == "__main__":
     while 1:
         ircmsg = bot.get_data()# receive data from the server
         ircmsg = ircmsg.strip('\n\r') # removing any unnecessary linebreaks.
-        #print('Message: ' + ircmsg)
-        #log.write(ircmsg + '\n')
         if "PRIVMSG" in ircmsg:
-            #log_msg = ircmsg.split(channel+" :")
-            #name = log_msg[0].split('!')[0].strip(':')
-            #log_msg = name + ': ' + log_msg[1]
             bot.log(ircmsg)#log_msg)
             command_msg = ircmsg.split(channel)
             user_name = command_msg[0][1:command_msg[0].index('!')]
-            #print command_msg[1][2:]
             bot.command(command_msg[1][2:], user_name)
 
         if ircmsg.find(":Hello "+ botnick) != -1:
