@@ -1,9 +1,7 @@
 import traceback
-import Commands
+from plugins import Commands, link_reader
 import time
 import socket 
-import time
-import link_reader
 
 class Bot:
     # Some basic variables used to configure the bot        
