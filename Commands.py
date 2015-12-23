@@ -13,7 +13,7 @@ def get_command(cmd, msg):
         return 'Commands: ' + str(get_command_list()).strip('[]')
     elif cmd == command_trigger + 'g':
         return google(msg)
-    elif cmd == command_trigger + 'w' or cmd == command_trigger + 'wiki':
+    elif cmd == command_trigger + 'w':
         return wikipedia(msg)
     elif cmd == command_trigger + 'def':
         return dictionary_search(msg)
@@ -37,10 +37,13 @@ def get_command(cmd, msg):
             msg = ""
         return evaluate(lang, msg)
     else:
-        pass
+        return False
 
 def get_command_list():
-    return [command_trigger + 'help', command_trigger + 'commands', command_trigger + 'g', command_trigger + 'w', command_trigger + 'wiki', command_trigger + 'about', command_trigger + 'convert', command_trigger + 'eval', command_trigger + 'def']
+    return [command_trigger + 'help', command_trigger + 'commands',
+            command_trigger + 'g', command_trigger + 'w', 
+            command_trigger + 'about', command_trigger + 'convert', 
+            command_trigger + 'eval', command_trigger + 'def']
 
 def google(search_input):
     if search_input == '':

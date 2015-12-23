@@ -50,13 +50,15 @@ class Bot:
                 if len(cmd) < len(command_msg):
                     msg = command_msg[len(cmd)+1:]
                 result = Commands.get_command(cmd,msg)
-                self.ircsock.send("PRIVMSG " + self.channel + " :" +user_name + ": " + result + "\n")
+                if result:
+                    self.ircsock.send("PRIVMSG " + self.channel + " :" +user_name + ": " + result + "\n")
+                    return
             except ValueError:
                 print traceback.print_stack()
             except Exception, err:
-                print traceback.print_stack()
+                print traceback.print_stack(), err
                 self.ircsock.send("PRIVMSG " + self.channel + " :Something went wrong!\n")
-        elif link_reader.check_link(command_msg):
+        if link_reader.check_link(command_msg):
             link = link_reader.check_link(command_msg);
             self.ircsock.send("PRIVMSG " + self.channel + " :[URL] "+ link_reader.read_link(link) +"\n")
               
