@@ -74,7 +74,8 @@ def dictionary_search(search_input):
         search_results = response.read()
         content = re.findall(r'<div class="def-content">(.*?)</div>', search_results, re.DOTALL)
         if len(content) != 0:
-            return content[0].strip('\n')
+            return_content = re.sub('<.*?>','', content[0])
+            return return_content.strip('\n')
         else:
             return 'Definition not found'
 
