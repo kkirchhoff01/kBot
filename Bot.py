@@ -15,13 +15,16 @@ class Bot:
         self.ircsock.send("USER "+ self.botnick +" "+ self.botnick +" "+ self.botnick +" :This bot is Kevin's\n")
         self.ircsock.send("NICK "+ self.botnick +"\n")
 
-    def get_server(self):
+    @property
+    def server(self):
         return self.server
-    
-    def get_channel(self):
+
+    @property
+    def channel(self):
         return self.channel
 
-    def get_nick(self):
+    @property
+    def botnick(self):
         return self.botnick
 
     def get_data(self):
@@ -69,8 +72,9 @@ class Bot:
         # Reads link from text
         if link_reader.check_link(command_msg):
             link = link_reader.check_link(command_msg);
-            self.ircsock.send("PRIVMSG " + self.channel + " :[URL] "+ link_reader.read_link(link) +"\n")
-
+            result = link_reader.read_link(link)
+            if result:
+                self.ircsock.send("PRIVMSG " + self.channel + " :[URL] "+ result +"\n")
     # Logger          
     def log(self, message):
         timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
@@ -85,9 +89,9 @@ class Bot:
 
 if __name__ == "__main__":
     bot = Bot()
-    server = bot.get_server()
-    channel = bot.get_channel()
-    botnick = bot.get_nick()
+    server = bot.server
+    channel = bot.channel
+    botnick = bot.botnick
     bot.joinchan(channel)
 
     # Waits to confirm join

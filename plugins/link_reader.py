@@ -12,7 +12,11 @@ def check_link(msg):
         return False
 
 def read_link(url):
-    response = urllib.urlopen(url)
-    results = response.read()
-    soup = BeautifulSoup(results)
-    return soup.title.string
+    try:
+        response = urllib.urlopen(url)
+        results = response.read()
+        soup = BeautifulSoup(results)
+        return soup.title.string
+    except IOError, exc:
+        print exc
+        return False
