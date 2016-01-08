@@ -10,7 +10,6 @@ kBot is an IRC bot written in Python.
 - Friendly greetings and responses
 
 ##To Do:
-- Add multiple channel support
 - Add more features:
  - Wiki search
  - Unit conversion
