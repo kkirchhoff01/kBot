@@ -16,7 +16,9 @@ def read_link(url):
         response = urllib.urlopen(url)
         results = response.read()
         soup = BeautifulSoup(results)
-        return soup.title.string
+        url_title = soup.title.string
+        print url_title
+        return url_title.encode('utf-8')
     except IOError, exc:
         print exc
         return False
