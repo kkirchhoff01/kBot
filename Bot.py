@@ -66,9 +66,12 @@ class Bot:
 
         # Sub string command
         elif len(command_msg.split('/')) == 3 and command_msg.split('/')[0] == 's':
-            new_msg = self.last_msg[user_name].replace(command_msg.split('/')[1], command_msg.split('/')[2])
-            self.ircsock.send("PRIVMSG " + chan + " :" +user_name + " meant to say: " + new_msg + "\n")
-            return
+            try:
+                new_msg = self.last_msg[user_name].replace(command_msg.split('/')[1], command_msg.split('/')[2])
+                if new_msg != self.last_msg[user_name]:
+                    self.ircsock.send("PRIVMSG " + chan + " :" +user_name + " meant to say: " + new_msg + "\n")
+            except KeyError:
+                pass
 
         # Respond to .bots
         elif command_msg == '.bots':
