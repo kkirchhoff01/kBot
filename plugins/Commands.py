@@ -28,10 +28,10 @@ def get_command(cmd, msg):
                 return conver_units(msg[0], msg[1], msg[2])
             except:
                 return("Usage: %sconvert <value> <units to convert from>" +
-                       " <units to convert to>" % command_trigger)
+                       " <units to convert to>") % command_trigger
         else:
             return("Usage: %sconvert <value> <units to convert from>" +
-                   " <units to convert to>" % command_trigger)
+                   " <units to convert to>") % command_trigger
     elif cmd == command_trigger + 'eval':
         if ' ' in msg:
             lang = msg[0:msg.index(' ')]
