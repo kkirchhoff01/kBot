@@ -76,8 +76,11 @@ def wikipedia(search_input):
 # Keep dict file or use website
 # Possibly find words most closely spelled to request
 def dictionary_search(search_input):
-    if not search_input.isalpha() or len(search_input.split(' ')) > 1 or search_input == '':
+    if(not search_input.isalpha() or
+       len(search_input.split(' ')) > 1 or
+       search_input == ''):
         return 'Invalid input.'
+
     else:
         url = 'http://dictionary.reference.com/browse/' + search_input
         response = urllib.urlopen(url)
@@ -93,8 +96,9 @@ def dictionary_search(search_input):
 
 # Get code from submit site using form info
 def evaluate(language, eval_input):
-    if eval_input == '':
+    if eval_input == '' and language.lower() != 'list':
         return 'Use ' + command_trigger + 'help for help.'
+
     value = ""
     if language.lower() == 'c':
         value = "c/gcc-4.4.3"
@@ -115,21 +119,23 @@ def evaluate(language, eval_input):
     elif language.lower() == 'ruby':
         value = "ruby/mri-1.0"
     elif language.lower() == 'list':
-        c = 'Language Options: C, C++, Javascript, lua, PHP, Perl, Python, Python3, Ruby.'
-        return c
+        return ('Language Options: C, C++, Javascript, lua,' +
+                ' PHP, Perl, Python, Python3, Ruby.')
     else:
         return "Language not found."
+
     br = mechanize.Browser()
     br.set_handle_robots(False)
     br.open('https://eval.in')
     br.select_form(nr=0)
     br["code"] = eval_input.strip(' ')
-    br.form["lang"] = [value,]
+    br.form["lang"] = [value, ]
     res = br.submit()
     content = res.read()
     content = content.split('Output')[2].split('Fork')[0]
     br.close()
     content = re.findall(r'<p.*?>(.*?)</p.*?>', content, re.DOTALL)
+
     if 'OK' in content[len(content) - 1]:
         return content[0].strip('\n')
     else:

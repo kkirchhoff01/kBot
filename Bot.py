@@ -70,7 +70,8 @@ class Bot:
                                   " :Something went wrong!\n")
 
         # Sub string command
-        elif len(command_msg.split('/')) == 3 and command_msg.split('/')[0] == 's':
+        elif(len(command_msg.split('/')) == 3 and
+                command_msg.split('/')[0] == 's'):
             try:
                 new_msg = self.last_msg[user_name].replace(
                         command_msg.split('/')[1], command_msg.split('/')[2])
@@ -89,12 +90,14 @@ class Bot:
             link = link_reader.check_link(command_msg)
             result = link_reader.read_link(link)
             if result:
-                self.ircsock.send("PRIVMSG " + chan + " :[URL] " + result + "\n")
+                self.ircsock.send("PRIVMSG " + chan +
+                                  " :[URL] " + result + "\n")
 
     # Logger
     def log(self, name, message):
         timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
-        self.log_file.write(str(timestamp) + ' ' + name + ': ' + str(message) + '\n')
+        self.log_file.write(str(timestamp) + ' ' + name + ': ' +
+                            str(message) + '\n')
 
     # Assigns op status to anyone in op list and gives them a friendly welcome
     def assign(self, name, chan):
