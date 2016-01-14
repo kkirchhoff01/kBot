@@ -1,4 +1,5 @@
 import json
+import random
 import re
 import urllib
 import urlparse
@@ -40,6 +41,8 @@ def get_command(cmd, msg):
             lang = msg
             msg = ""
         return evaluate(lang, msg)
+    elif cmd == command_trigger + 'quote':
+        return quote(msg)
     else:
         return False
 
@@ -48,7 +51,8 @@ def get_command_list():
     return [command_trigger + 'help', command_trigger + 'commands',
             command_trigger + 'g', command_trigger + 'w',
             command_trigger + 'about', command_trigger + 'convert',
-            command_trigger + 'eval', command_trigger + 'def']
+            command_trigger + 'eval', command_trigger + 'def',
+            command_trigger + 'quote']
 
 
 def google(search_input):
@@ -146,3 +150,17 @@ def convert_units(value, unit_input, unit_output):
     if value == '':
         return 'Use ' + command_trigger + 'help for help.'
     return "Unit converter is still in progress!"
+
+
+def quote(user):
+    quotes = []
+    with open('/home/kkirchhoff/Programming/Python/IRC-Bot/IRC.log', 'r') as log:
+        lines = log.readlines()
+        for line in lines:
+            line = line.split(' ')
+            if len(line) > 1 and user == line[1].strip(':') and line[2][0] != '.':
+                quotes.append(' '.join(line[2:]))
+    if len(quotes) > 0:
+        return("<%s> %s" %(user, quotes[random.randint(0, len(quotes)-1)].strip('\n')))
+    else:
+        return 'No quotes found'

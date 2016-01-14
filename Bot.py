@@ -53,10 +53,11 @@ class Bot:
         if any(command_item in command_msg for
                 command_item in Commands.get_command_list()):
             try:
-                cmd = command_msg.split(' ')[0]
+                command_list = command_msg.split(' ')
+                cmd = command_list[0]
                 msg = ''
-                if len(cmd) < len(command_msg):
-                    msg = command_msg[len(cmd)+1:]
+                if len(command_list) > 1:
+                    msg = ' '.join(command_list[1:])
                 result = Commands.get_command(cmd, msg)
                 if result:
                     self.ircsock.send("PRIVMSG " + chan + " :" +
@@ -96,8 +97,8 @@ class Bot:
     # Logger
     def log(self, name, message):
         timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
-        self.log_file.write(str(timestamp) + ' ' + name + ': ' +
-                            str(message) + '\n')
+        with open(self.log_file, 'a') as log:
+            log.write("%s %s: %s \n" % (str(timestamp), name, str(message)))
 
     # Assigns op status to anyone in op list and gives them a friendly welcome
     def assign(self, name, chan):
