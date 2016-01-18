@@ -59,9 +59,12 @@ class Bot:
                 if len(command_list) > 1:
                     msg = ' '.join(command_list[1:])
                 result = Commands.get_command(cmd, msg)
-                if result:
+                if result and cmd  != '.quote':
                     self.ircsock.send("PRIVMSG " + chan + " :" +
                                       user_name + ": " + result + "\n")
+                elif result and cmd == '.quote':
+                    self.ircsock.send("PRIVMSG " + chan + " :" +
+                                      result + "\n")
                     return
             except ValueError:
                 print traceback.print_stack()
