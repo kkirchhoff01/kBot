@@ -23,10 +23,11 @@ def get_command(cmd, msg):
     elif cmd == command_trigger + 'about':
         return "This bot was written in Python by Kevin Kirchhoff"
     elif cmd == command_trigger + 'convert':
-        msg = msg.split(' ')
-        if type(msg[0]) == float or type(msg[0]) == int:
+        form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
+        if form is not None:
+            unit_dict = form.groupdict()
             try:
-                return conver_units(msg[0], msg[1], msg[2])
+                return conver_units(int(unit_dict['unit_value']), unit_dict['unit_from'], unit_dict['unit_to'])
             except:
                 return("Usage: %sconvert <value> <units to convert from>" +
                        " <units to convert to>") % command_trigger
@@ -80,9 +81,7 @@ def wikipedia(search_input):
 # Keep dict file or use website
 # Possibly find words most closely spelled to request
 def dictionary_search(search_input):
-    if(not search_input.isalpha() or
-       len(search_input.split(' ')) > 1 or
-       search_input == ''):
+    if(re.match(r"^[a-zA-Z]+$", search_input) == None):
         return 'Invalid input.'
 
     else:
