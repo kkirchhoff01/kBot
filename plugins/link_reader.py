@@ -21,13 +21,20 @@ def read_link(url):
         results = response.read()
         response.close()
         info = response.info()
-        info_type = info.type.split('/')
-        if info_type[1] == 'html':
+        if info.type == 'text/html':
             soup = BeautifulSoup(results)
-            url_title = soup.title.string
+            url_title = "[URL] %s" % soup.title.string
             return url_title.encode('utf-8')
         else:
-            return '[' + info_type[0] + '][' + info_type[1] + '] ' + info.getheaders('Content-Length')[0] + ' bytes'
+            content_size = float(info.getheaders('Content-Length')[0])
+            if content_size < 1000.0:
+                return "[%s] %.2f B" % (info.type, content_size)
+            elif content_size > 1000.0 and content_size < 1000000:
+                return "[%s] %.2f KB" % (info.type, content_size/1000.0)
+            elif content_size > 1000000.0 and content_size < 1000000000.0:
+                return "[%s] %.2f MB" % (info.type, content_size/1000000.0)
+            elif content_size > 1000000000.0:
+                return "[%s] %.2f GB" % (info.type, content_size/1000000000.0)
     except IOError, exc:
         print exc
         return False
