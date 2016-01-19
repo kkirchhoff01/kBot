@@ -12,7 +12,7 @@ class Bot:
         self.botnick = "kBot9000"
         self.last_msg = {}
         self.users = []
-        self.log_file = open('IRC.log', 'a')
+        self.log_file = 'IRC_Logs.log'
         self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ircsock.connect((self.server, 6667))
         self.ircsock.send("USER " + self.botnick + " " + self.botnick + " " +
@@ -59,9 +59,10 @@ class Bot:
                 if len(command_list) > 1:
                     msg = ' '.join(command_list[1:])
                 result = Commands.get_command(cmd, msg)
-                if result and cmd  != '.quote':
+                if result and cmd != '.quote':
                     self.ircsock.send("PRIVMSG " + chan + " :" +
                                       user_name + ": " + result + "\n")
+                    return
                 elif result and cmd == '.quote':
                     self.ircsock.send("PRIVMSG " + chan + " :" +
                                       result + "\n")
@@ -84,18 +85,22 @@ class Bot:
                                       " meant to say: " + new_msg + "\n")
             except KeyError:
                 pass
+            return
 
         # Respond to .bots
         elif command_msg == '.bots':
             self.ircsock.send("PRIVMSG " + chan + " :Reporting in! [Python]\n")
+            return
 
         # Reads link from text
         if link_reader.check_link(command_msg):
             link = link_reader.check_link(command_msg)
-            result = link_reader.read_link(link)
-            if result:
-                self.ircsock.send("PRIVMSG " + chan +
-                                  " :[URL] " + result + "\n")
+            if link:
+                links = [i for i in command_msg.split(' ') if link in i]
+                result = link_reader.read_link(links[0])
+                if result:
+                    self.ircsock.send("PRIVMSG " + chan +
+                                      " :" + result + "\n")
 
     # Logger
     def log(self, name, message):
@@ -124,7 +129,6 @@ if __name__ == "__main__":
     # Main loop
     while 1:
         ircmsg = bot.get_data()  # receive data from the server
-        print ircmsg
         ircmsg = ircmsg.strip('\n\r')  # removing any unnecessary linebreaks.
         msg_channel = ''
         for channel in channels:
@@ -147,5 +151,5 @@ if __name__ == "__main__":
             bot.assign(ircmsg[1:ircmsg.index("!")], msg_channel)
 
         # Ping response
-        if ircmsg.find("PING :") != -1:  # Respond to ping
+        if ircmsg.find("PING :") != -1:
             bot.ping()
