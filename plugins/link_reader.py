@@ -35,8 +35,7 @@ def read_link(url):
             elif content_size > 1000000000.0:
                 return "[%s] %.2f GB" % (info.type, content_size/1000000000.0)
     except IOError, exc:
-        print exc
-        return False
+        return "[URL] Site not found"
     except Exception, exc:
         print exc
         return False
