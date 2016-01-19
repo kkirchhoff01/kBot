@@ -2,6 +2,7 @@ import traceback
 from plugins import Commands, link_reader
 import time
 import socket
+import re
 
 
 class Bot:
@@ -49,58 +50,62 @@ class Bot:
 
     # Check for command
     def command(self, command_msg, user_name, chan):
-        # Check for command in command list
-        if any(command_item in command_msg for
-                command_item in Commands.get_command_list()):
+        command_match = re.match(r"^(\.)(?P<command>[a-zA-Z]+)($|\s(?P<msg>.+$))" +
+                                 r"|^(s/)(?P<word>.+)(/)(?P<sub_word>.+$)",
+                                 command_msg)
+        # Read link
+        if(command_match == None and
+           link_reader.check_link(command_msg)):
+            link = link_reader.check_link(command_msg)
+            links = [i for i in command_msg.split(' ') if link in i]
+            result = link_reader.read_link(links[0])
+            if result:
+                self.ircsock.send("PRIVMSG " + chan + " :"+ result +"\n")
+            return
+        elif command_match != None:
+            command_match = command_match.groupdict()
+        else:
+            return
+
+        # Do command
+        if(command_match['command'] in Commands.get_command_list()):
             try:
-                command_list = command_msg.split(' ')
-                cmd = command_list[0]
-                msg = ''
-                if len(command_list) > 1:
-                    msg = ' '.join(command_list[1:])
-                result = Commands.get_command(cmd, msg)
-                if result and cmd != '.quote':
-                    self.ircsock.send("PRIVMSG " + chan + " :" +
-                                      user_name + ": " + result + "\n")
+                cmd = command_match['command']
+                msg = command_match['msg']
+                result = Commands.get_command(cmd,msg)
+                if result and cmd != 'quote':
+                    self.ircsock.send("PRIVMSG " + chan +
+                                      " :" + user_name +
+                                      ": " + result + "\n")
                     return
-                elif result and cmd == '.quote':
-                    self.ircsock.send("PRIVMSG " + chan + " :" +
-                                      result + "\n")
+                elif result and cmd == 'quote':
+                    self.ircsock.send("PRIVMSG " + chan +
+                                      " :" + result + "\n")
                     return
             except ValueError:
-                print traceback.print_stack()
+                print result
             except Exception, err:
-                print traceback.print_stack(), err
+                print traceback.print_stack()
+                print err
                 self.ircsock.send("PRIVMSG " + chan +
                                   " :Something went wrong!\n")
 
-        # Sub string command
-        elif(len(command_msg.split('/')) == 3 and
-                command_msg.split('/')[0] == 's'):
+        # Sub string
+        elif(command_match['word'] != None and
+             command_match['sub_word'] != None):
             try:
                 new_msg = self.last_msg[user_name].replace(
-                        command_msg.split('/')[1], command_msg.split('/')[2])
+                    command_match['word'], command_match['sub_word'])
                 if new_msg != self.last_msg[user_name]:
-                    self.ircsock.send("PRIVMSG " + chan + " :" + user_name +
+                    self.ircsock.send("PRIVMSG " + chan + " :" +user_name +
                                       " meant to say: " + new_msg + "\n")
             except KeyError:
                 pass
             return
 
-        # Respond to .bots
-        elif command_msg == '.bots':
+        elif command_match['command'] == 'bots' and command_match['msg'] == None:
             self.ircsock.send("PRIVMSG " + chan + " :Reporting in! [Python]\n")
             return
-
-        # Reads link from text
-        if link_reader.check_link(command_msg):
-            link = link_reader.check_link(command_msg)
-            if link:
-                links = [i for i in command_msg.split(' ') if link in i]
-                result = link_reader.read_link(links[0])
-                if result:
-                    self.ircsock.send("PRIVMSG " + chan +
-                                      " :" + result + "\n")
 
     # Logger
     def log(self, name, message):

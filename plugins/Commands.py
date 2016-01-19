@@ -9,20 +9,20 @@ command_trigger = '.'
 
 
 def get_command(cmd, msg):
-    if cmd == command_trigger + 'help':
+    if cmd == 'help':
         return("For a list of commands use .commands. To use kBot try:" +
                " .<command> <input>")
-    elif cmd == command_trigger + 'commands':
+    elif cmd == 'commands':
         return 'Commands: ' + str(get_command_list()).strip('[]')
-    elif cmd == command_trigger + 'g':
+    elif cmd == 'g':
         return google(msg)
-    elif cmd == command_trigger + 'w':
+    elif cmd == 'w':
         return wikipedia(msg)
-    elif cmd == command_trigger + 'def':
+    elif cmd == 'def':
         return dictionary_search(msg)
-    elif cmd == command_trigger + 'about':
+    elif cmd == 'about':
         return "This bot was written in Python by Kevin Kirchhoff"
-    elif cmd == command_trigger + 'convert':
+    elif cmd == 'convert':
         form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
         if form is not None:
             unit_dict = form.groupdict()
@@ -34,30 +34,27 @@ def get_command(cmd, msg):
         else:
             return("Usage: %sconvert <value> <units to convert from>" +
                    " <units to convert to>") % command_trigger
-    elif cmd == command_trigger + 'eval':
+    elif cmd == 'eval':
         if ' ' in msg:
             lang = msg[0:msg.index(' ')]
             msg = msg.split(lang)[1]
         else:
             lang = msg
-            msg = ""
+            msg = None
         return evaluate(lang, msg)
-    elif cmd == command_trigger + 'quote':
+    elif cmd == 'quote':
         return quote(msg)
     else:
         return False
 
 
 def get_command_list():
-    return [command_trigger + 'help', command_trigger + 'commands',
-            command_trigger + 'g', command_trigger + 'w',
-            command_trigger + 'about', command_trigger + 'convert',
-            command_trigger + 'eval', command_trigger + 'def',
-            command_trigger + 'quote']
+    return ['help', 'commands', 'g', 'w', 'about',  'convert',
+             'eval', 'def', 'quote']
 
 
 def google(search_input):
-    if search_input == '':
+    if search_input == None:
         return command_trigger + 'Use help for help.'
     query = urllib.urlencode({'q': search_input})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&' + query
@@ -73,7 +70,7 @@ def google(search_input):
 
 # Use wikipedia python library? Or do it the right way?
 def wikipedia(search_input):
-    if search_input == '':
+    if search_input == None:
         return 'Use '+command_trigger+'help for help.'
     return 'Wiki search is still in progress!'
 
@@ -99,7 +96,7 @@ def dictionary_search(search_input):
 
 # Get code from submit site using form info
 def evaluate(language, eval_input):
-    if eval_input == '' and language.lower() != 'list':
+    if eval_input == None and language.lower() != 'list':
         return 'Use ' + command_trigger + 'help for help.'
 
     value = ""
@@ -146,12 +143,14 @@ def evaluate(language, eval_input):
 
 
 def convert_units(value, unit_input, unit_output):
-    if value == '':
+    if value == None:
         return 'Use ' + command_trigger + 'help for help.'
     return "Unit converter is still in progress!"
 
 
 def quote(user):
+    if user == None:
+        return "Use %shelp for help" % command_trigger
     quotes = []
     with open('/home/kkirchhoff/Programming/Python/IRC-Bot/IRC.log', 'r') as log:
         lines = log.readlines()
