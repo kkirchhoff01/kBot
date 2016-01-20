@@ -13,7 +13,7 @@ def get_command(cmd, msg):
         return("For a list of commands use .commands. To use kBot try:" +
                " .<command> <input>")
     elif cmd == 'commands':
-        return 'Commands: ' + str(get_command_list()).strip('[]')
+        return 'Commands: ' + ', '.join(get_command_list())
     elif cmd == 'g':
         return google(msg)
     elif cmd == 'w':
