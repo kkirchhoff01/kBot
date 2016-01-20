@@ -8,9 +8,9 @@ import re
 class Bot:
     # Some basic variables used to configure the bot
     def __init__(self):
-        self.server = "irc.freenode.net"
-        self.channels = ["#icecube"]  # Channel
-        self.botnick = "kBot9000"
+        self.server = "irc.rizon.net"
+        self.channels = ["#kBot9000"]  # Channel
+        self.botnick = "kBot"
         self.last_msg = {}
         self.users = []
         self.log_file = 'IRC_Logs.log'
@@ -50,10 +50,12 @@ class Bot:
 
     # Check for command
     def command(self, command_msg, user_name, chan):
+        # Check for command message
         command_match = re.match(r"^(\.)(?P<command>[a-zA-Z]+)($|\s(?P<msg>.+$))" +
                                  r"|^(s/)(?P<word>.+)(/)(?P<sub_word>.+$)",
                                  command_msg)
-        # Read link
+
+        # Read link if no command found
         if(command_match == None and
            link_reader.check_link(command_msg)):
             link = link_reader.check_link(command_msg)
@@ -62,8 +64,12 @@ class Bot:
             if result:
                 self.ircsock.send("PRIVMSG " + chan + " :"+ result +"\n")
             return
+        
+        # Command found/organize input
         elif command_match != None:
             command_match = command_match.groupdict()
+
+        # No command or link found
         else:
             return
 
@@ -127,20 +133,19 @@ if __name__ == "__main__":
     botnick = bot.botnick
     for channel in channels:
         bot.joinchan(channel)
-        while "JOIN " + channel not in bot.get_data():
-            time.sleep(0.1)
-        bot.hello(channel)
 
     # Main loop
     while 1:
         ircmsg = bot.get_data()  # receive data from the server
         ircmsg = ircmsg.strip('\n\r')  # removing any unnecessary linebreaks.
-        msg_channel = ''
+
+        msg_channel = None
         for channel in channels:
             if channel in ircmsg:
                 msg_channel = channel
                 break
-        if "PRIVMSG" in ircmsg:
+
+        if "PRIVMSG" in ircmsg and msg_channel != None:
             command_msg = ircmsg.split(msg_channel)
             user_name = command_msg[0][1:command_msg[0].index('!')]
             bot.command(command_msg[1][2:], user_name, msg_channel)
