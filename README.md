@@ -14,3 +14,4 @@ kBot is an IRC bot written in Python.
  - Wiki search
  - Unit conversion
  - YouTube search
+- Implement threading for multiple channels
