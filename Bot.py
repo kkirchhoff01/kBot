@@ -12,7 +12,6 @@ class Bot:
         self.channels = ["#kBot9000"]  # Channel
         self.botnick = "kBot"
         self.last_msg = {}
-        self.users = []
         self.log_file = 'IRC_Logs.log'
         self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ircsock.connect((self.server, 6667))

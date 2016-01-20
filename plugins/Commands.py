@@ -23,11 +23,14 @@ def get_command(cmd, msg):
     elif cmd == 'about':
         return "This bot was written in Python by Kevin Kirchhoff"
     elif cmd == 'convert':
-        form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
+        form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)" +
+                        r"(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
         if form is not None:
             unit_dict = form.groupdict()
             try:
-                return conver_units(int(unit_dict['unit_value']), unit_dict['unit_from'], unit_dict['unit_to'])
+                return convert_units(int(unit_dict['unit_value']),
+                                    unit_dict['unit_from'],
+                                    unit_dict['unit_to'])
             except:
                 return("Usage: %sconvert <value> <units to convert from>" +
                        " <units to convert to>") % command_trigger
@@ -44,13 +47,15 @@ def get_command(cmd, msg):
         return evaluate(lang, msg)
     elif cmd == 'quote':
         return quote(msg)
+    elif cmd == 'decide':
+        return decide(msg)
     else:
         return False
 
 
 def get_command_list():
     return ['help', 'commands', 'g', 'w', 'about',  'convert',
-             'eval', 'def', 'quote']
+             'eval', 'def', 'quote', 'decide']
 
 
 def google(search_input):
@@ -162,3 +167,12 @@ def quote(user):
         return("<%s> %s" %(user, quotes[random.randint(0, len(quotes)-1)].strip('\n')))
     else:
         return 'No quotes found'
+
+
+def decide(options):
+    make_decision = options.split('or')
+    if len(make_decision) != 2:
+        return "Use: .decide <option 1> or <option 2>"
+    decision_number = int(round(random.random()))
+
+    return "Do %s" % make_decision[decision_number].strip(' ')
