@@ -18,6 +18,7 @@ class Bot:
         self.ircsock.send("USER " + self.botnick + " " + self.botnick + " " +
                           self.botnick + " :This bot is Kevin's\n")
         self.ircsock.send("NICK " + self.botnick + "\n")
+        self.cooldown = 30.0
 
     @property
     def server(self):
@@ -78,7 +79,7 @@ class Bot:
                 cmd = command_match['command']
                 msg = command_match['msg']
                 result = Commands.get_command(cmd,msg)
-                if result and cmd != 'quote':
+                if result and cmd not in ['quote', 'draw']:
                     self.ircsock.send("PRIVMSG " + chan +
                                       " :" + user_name +
                                       ": " + result + "\n")
@@ -87,6 +88,19 @@ class Bot:
                     self.ircsock.send("PRIVMSG " + chan +
                                       " :" + result + "\n")
                     return
+                elif result and cmd == 'draw':
+                    if (time.time() - self.cooldown) < 30.0:
+                        self.ircsock.send("PRIVMSG " + chan +
+                                          " :Draw can only be used once every 30 seconds (in %.2f seconds)\n" %
+                                          (30.0 - (time.time() - self.cooldown)))
+                        return
+                    else:
+                        result = result.split('\n')
+                        for line in result:
+                            self.ircsock.send("PRIVMSG " + chan +
+                                              " :" + line + "\n")
+                        self.cooldown = time.time()
+                        return
             except ValueError:
                 print result
             except Exception, err:
