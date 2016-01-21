@@ -1,13 +1,11 @@
-import sys
 import numpy as np
-from bisect import bisect
 import cStringIO
 import urllib
 from PIL import Image
 
 #####################################################################
 #                                                                   #
-# This code is an altered version of Jalal Sela's ascii draw from:  #
+# This code was inspired by Jalal Sela's ascii draw found at:       #
 # https://jalalsela.wordpress.com/2015/03/19/modigliani-an-irc-bot/ #
 #                                                                   #
 #####################################################################
@@ -31,21 +29,17 @@ colors = { 0 : (255, 255, 255),
         }
 
 def draw_ascii(im_link):
-    url = []
-    url.append(im_link)
     scale = "x"*64
-    scale= scale[::-1]
     zonebounds=range(4,256,4)
     url_string = ''
-    test = ''
 
     try:
-        imgfile = cStringIO.StringIO(urllib.urlopen(str(url[0])).read())
+        imgfile = cStringIO.StringIO(urllib.urlopen(im_link).read())
         im = Image.open(imgfile)
         height = (im.size[1] * 20) / (im.size[0])
         im = im.resize((50, height), Image.ANTIALIAS)
         im_col = im.convert('RGB')
-        imgBuf=""
+        imgBuf = ""
         for y in range(0,im.size[1]):
             imgBuf = ""
             for x in range(0,im.size[0]):
@@ -54,7 +48,6 @@ def draw_ascii(im_link):
             url_string = url_string + str(imgBuf) + '\n'
         return url_string
     except:
-        # e = sys.exc_info()
         return "Image failed to draw"
 
 
