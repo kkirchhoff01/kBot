@@ -4,6 +4,7 @@ import re
 import urllib
 import urlparse
 import mechanize
+from plugins.image_ascii import draw_ascii
 
 command_trigger = '.'
 
@@ -49,13 +50,15 @@ def get_command(cmd, msg):
         return quote(msg)
     elif cmd == 'decide':
         return decide(msg)
+    elif cmd == 'draw':
+        return draw_ascii(msg)
     else:
         return False
 
 
 def get_command_list():
     return ['help', 'commands', 'g', 'w', 'about',  'convert',
-             'eval', 'def', 'quote', 'decide']
+             'eval', 'def', 'quote', 'decide', 'draw']
 
 
 def google(search_input):
