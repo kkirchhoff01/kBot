@@ -29,8 +29,7 @@ colors = { 0 : (255, 255, 255),
         }
 
 def draw_ascii(im_link):
-    scale = "x"*64
-    zonebounds=range(4,256,4)
+    zonebounds = range(4,256,4)
     url_string = ''
 
     try:
@@ -44,7 +43,8 @@ def draw_ascii(im_link):
             imgBuf = ""
             for x in range(0,im.size[0]):
                 light = get_color(im_col.getpixel((x,y)))
-                imgBuf  = imgBuf + ("\x03" + str(light) + "," + str(light)  + "x\x03")
+                imgBuf  = imgBuf + ("\x03" + str(light) + "," +
+                                    str(light)  + "x\x03")
             url_string = url_string + str(imgBuf) + '\n'
         return url_string
     except:
