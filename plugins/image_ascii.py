@@ -44,7 +44,7 @@ def draw_ascii(im_link):
             imgBuf = ""
             for x in range(0,im.size[0]):
                 light = get_color(im_col.getpixel((x,y)))
-                imgBuf  = imgBuf + ("\x03" + str(light)  + "x\x03")
+                imgBuf  = imgBuf + ("\x03" + str(light) + "," + str(light)  + "x\x03")
             url_string = url_string + str(imgBuf) + '\n'
         return url_string
     except:
