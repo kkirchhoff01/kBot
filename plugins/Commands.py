@@ -24,28 +24,9 @@ def get_command(cmd, msg):
     elif cmd == 'about':
         return "This bot was written in Python by Kevin Kirchhoff"
     elif cmd == 'convert':
-        form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)" +
-                        r"(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
-        if form is not None:
-            unit_dict = form.groupdict()
-            try:
-                return convert_units(int(unit_dict['unit_value']),
-                                    unit_dict['unit_from'],
-                                    unit_dict['unit_to'])
-            except:
-                return("Usage: %sconvert <value> <units to convert from>" +
-                       " <units to convert to>") % command_trigger
-        else:
-            return("Usage: %sconvert <value> <units to convert from>" +
-                   " <units to convert to>") % command_trigger
+        return convert_units(msg)
     elif cmd == 'eval':
-        if ' ' in msg:
-            lang = msg[0:msg.index(' ')]
-            msg = msg.split(lang)[1]
-        else:
-            lang = msg
-            msg = None
-        return evaluate(lang, msg)
+        return evaluate(msg)
     elif cmd == 'quote':
         return quote(msg)
     elif cmd == 'decide':
@@ -103,7 +84,16 @@ def dictionary_search(search_input):
 
 
 # Get code from submit site using form info
-def evaluate(language, eval_input):
+def evaluate(msg):#language, eval_input):
+    eval_input = None
+    language = None
+
+    if ' ' in msg:
+        language = msg[0:msg.index(' ')]
+        eval_input = msg.split(language)[1]
+    else:
+        language = msg
+
     if eval_input == None and language.lower() != 'list':
         return 'Use ' + command_trigger + 'help for help.'
 
@@ -150,7 +140,24 @@ def evaluate(language, eval_input):
         return content[len(content)-1].strip('\n')
 
 
-def convert_units(value, unit_input, unit_output):
+def convert_units(msg):
+    form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)" +
+                    r"(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
+    value = None
+    unit_input = None
+    unit_output = None
+    if form is not None:
+        unit_dict = form.groupdict()
+        try:
+            value = unit_dict['unit_value']
+            unit_input = unit_dict['unit_from']
+            unit_output = unit_dict['unit_to']
+        except:
+            return("Usage: %sconvert <value> <units to convert from>" +
+                   " <units to convert to>") % command_trigger
+    else:
+        return("Usage: %sconvert <value> <units to convert from>" +
+               " <units to convert to>") % command_trigger
     if value == None:
         return 'Use ' + command_trigger + 'help for help.'
     return "Unit converter is still in progress!"
