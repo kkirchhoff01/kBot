@@ -8,6 +8,7 @@ kBot is an IRC bot written in Python.
 - Code evaluation
 - Quote users
 - Decide (randomly choose between two options)
+- Foreign language translation
 - Link reader
 - Vim-like sub command
 - Friendly greetings and responses
