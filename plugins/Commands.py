@@ -5,8 +5,7 @@ import urllib
 import urlparse
 import mechanize
 from plugins.image_ascii import draw_ascii
-
-command_trigger = '.'
+from plugins.translator import translate
 
 
 def get_command(cmd, msg):
@@ -33,18 +32,20 @@ def get_command(cmd, msg):
         return decide(msg)
     elif cmd == 'draw':
         return draw_ascii(msg)
+    elif cmd == 'translate':
+        return translate(msg)
     else:
         return False
 
 
 def get_command_list():
     return ['help', 'commands', 'g', 'w', 'about',  'convert',
-             'eval', 'def', 'quote', 'decide', 'draw']
+             'eval', 'def', 'quote', 'decide', 'draw', 'translate']
 
 
 def google(search_input):
     if search_input == None:
-        return command_trigger + 'Use help for help.'
+        return 'Use .help for help.'
     query = urllib.urlencode({'q': search_input})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&' + query
     response = urllib.urlopen(url)
@@ -60,7 +61,7 @@ def google(search_input):
 # Use wikipedia python library? Or do it the right way?
 def wikipedia(search_input):
     if search_input == None:
-        return 'Use '+command_trigger+'help for help.'
+        return 'Use .help for help.'
     return 'Wiki search is still in progress!'
 
 
@@ -95,7 +96,7 @@ def evaluate(msg):#language, eval_input):
         language = msg
 
     if eval_input == None and language.lower() != 'list':
-        return 'Use ' + command_trigger + 'help for help.'
+        return 'Use .help for help.'
 
     value = ""
     if language.lower() == 'c':
@@ -153,19 +154,19 @@ def convert_units(msg):
             unit_input = unit_dict['unit_from']
             unit_output = unit_dict['unit_to']
         except:
-            return("Usage: %sconvert <value> <units to convert from>" +
-                   " <units to convert to>") % command_trigger
+            return("Usage: .convert <value> <units to convert from>" +
+                   " <units to convert to>")
     else:
-        return("Usage: %sconvert <value> <units to convert from>" +
-               " <units to convert to>") % command_trigger
+        return("Usage: .convert <value> <units to convert from>" +
+               " <units to convert to>")
     if value == None:
-        return 'Use ' + command_trigger + 'help for help.'
+        return "Use .help for help"
     return "Unit converter is still in progress!"
 
 
 def quote(user):
     if user == None:
-        return "Use %shelp for help" % command_trigger
+        return "Use .help for help"
     quotes = []
     with open('/home/kkirchhoff/Programming/Python/IRC-Bot/IRC.log', 'r') as log:
         lines = log.readlines()
