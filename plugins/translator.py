@@ -4,12 +4,9 @@ import json
 
 api_key = ""
 with open('key.txt', 'r') as fh:
-    api_key = fh.read()
-
-print api_key
+    api_key = fh.read().strip('\n')
 
 url = language_detection = "https://translate.yandex.net/api/v1.5/tr.json/"
-
 
 def translate(text):
     language_detection = url + "detect?key={}&text={}".format(api_key, text)
