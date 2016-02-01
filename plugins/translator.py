@@ -2,8 +2,12 @@
 import urllib
 import json
 
-api_key = ("trnsl.1.1.20160201T180329Z.e923c0b1bd751207." +
-           "e44a510e32cecc9383da7f944b729372974bdccb")
+api_key = ""
+with open('key.txt', 'r') as fh:
+    api_key = fh.read()
+
+print api_key
+
 url = language_detection = "https://translate.yandex.net/api/v1.5/tr.json/"
 
 
