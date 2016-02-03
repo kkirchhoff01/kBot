@@ -20,7 +20,10 @@ def read_link(url):
         info = response.info()
         if info.type == 'text/html':
             soup = BeautifulSoup(results)
-            url_title = "[URL] %s" % soup.title.string
+            title_string = re.sub('[\r|\n]', ' ', soup.title.string)
+            if len(title_string) > 200:
+                title_string = title_string[:200] + "..."
+            url_title = "[URL] {}".format(title_string)
             return url_title.encode('utf-8')
         else:
             content_size = float(info.getheaders('Content-Length')[0])
@@ -34,6 +37,8 @@ def read_link(url):
                 return "[%s] %.2f GB" % (info.type, content_size/1000000000.0)
     except IOError, exc:
         return "[URL] Site not found"
+    except AttributeError:
+        return "[URL] (No title)"
     except Exception, exc:
         print exc
         return False
