@@ -14,10 +14,6 @@ class Bot:
         self.last_msg = {}
         self.log_file = 'IRC_Logs.log'
         self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ircsock.connect((self.server, 6667))
-        self.ircsock.send("USER " + self.botnick + " " + self.botnick + " " +
-                          self.botnick + " :This bot is Kevin's\n")
-        self.ircsock.send("NICK " + self.botnick + "\n")
         self.cooldown = 30.0
 
     @property
@@ -31,6 +27,14 @@ class Bot:
     @property
     def botnick(self):
         return self.botnick
+
+    def connect(self):
+        self.ircsock.connect((self.server, 6667))
+
+    def send_info(self):
+        self.ircsock.send("USER " + self.botnick + " " + self.botnick + " " +
+                          self.botnick + " :This bot is Kevin's\n")
+        self.ircsock.send("NICK " + self.botnick + "\n")
 
     def get_data(self):
         return self.ircsock.recv(2048)
@@ -91,7 +95,7 @@ class Bot:
                 elif result and cmd == 'draw':
                     if (time.time() - self.cooldown) < 30.0:
                         self.ircsock.send("PRIVMSG " + chan +
-                                          " :Draw can only be used once every 30 seconds (in %.2f seconds)\n" %
+                                          " :Draw can only be used once every 30 seconds (%.2f seconds left)\n" %
                                           (30.0 - (time.time() - self.cooldown)))
                         return
                     else:
@@ -141,6 +145,8 @@ class Bot:
 
 if __name__ == "__main__":
     bot = Bot()
+    bot.connect()
+    bot.send_info()
     server = bot.server
     channels = bot.channels
     botnick = bot.botnick
@@ -150,15 +156,22 @@ if __name__ == "__main__":
     # Main loop
     while 1:
         ircmsg = bot.get_data()  # receive data from the server
+        if not ircmsg:  # Check for disconnect
+            try:
+                bot.connect()
+                bot.send_info()
+            except:
+                sys.exit(1)
+
         ircmsg = ircmsg.strip('\n\r')  # removing any unnecessary linebreaks.
 
-        msg_channel = None
-        for channel in channels:
-            if channel in ircmsg:
-                msg_channel = channel
-                break
+        msg_channel = ircmsg.split(' ')
+        if len(msg_channel) > 2:
+            msg_channel = msg_channel[2]
+        else:
+            msg_channel = ''
 
-        if "PRIVMSG" in ircmsg and msg_channel != None:
+        if "PRIVMSG" in ircmsg and msg_channel in channels:
             command_msg = ircmsg.split(msg_channel)
             user_name = command_msg[0][1:command_msg[0].index('!')]
             bot.command(command_msg[1][2:], user_name, msg_channel)
