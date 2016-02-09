@@ -5,7 +5,6 @@ import urllib
 import urlparse
 import mechanize
 from plugins.image_ascii import draw_ascii
-from plugins.translator import translate
 
 
 def get_command(cmd, msg):
@@ -40,11 +39,11 @@ def get_command(cmd, msg):
 
 def get_command_list():
     return ['help', 'commands', 'g', 'w', 'about',  'convert',
-             'eval', 'def', 'quote', 'decide', 'draw', 'translate']
+            'eval', 'def', 'quote', 'decide', 'draw', 'translate']
 
 
 def google(search_input):
-    if search_input == None:
+    if search_input is None:
         return 'Use .help for help.'
     query = urllib.urlencode({'q': search_input})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&' + query
@@ -60,7 +59,7 @@ def google(search_input):
 
 # Use wikipedia python library? Or do it the right way?
 def wikipedia(search_input):
-    if search_input == None:
+    if search_input is None:
         return 'Use .help for help.'
     return 'Wiki search is still in progress!'
 
@@ -68,7 +67,7 @@ def wikipedia(search_input):
 # Keep dict file or use website
 # Possibly find words most closely spelled to request
 def dictionary_search(search_input):
-    if(re.match(r"^[a-zA-Z]+$", search_input) == None):
+    if(re.match(r"^[a-zA-Z]+$", search_input) is None):
         return 'Invalid input.'
 
     else:
@@ -85,7 +84,7 @@ def dictionary_search(search_input):
 
 
 # Get code from submit site using form info
-def evaluate(msg):#language, eval_input):
+def evaluate(msg):
     eval_input = None
     language = None
 
@@ -95,7 +94,7 @@ def evaluate(msg):#language, eval_input):
     else:
         language = msg
 
-    if eval_input == None and language.lower() != 'list':
+    if eval_input is None and language.lower() != 'list':
         return 'Use .help for help.'
 
     value = ""
@@ -143,7 +142,7 @@ def evaluate(msg):#language, eval_input):
 
 def convert_units(msg):
     form = re.match(r"^(?P<unit_value>[1-9][0-9]+)\s(?P<unit_from>[a-zA-Z]+)" +
-                    r"(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$",msg)
+                    r"(\s|\s(to)\s)(?P<unit_to>[a-zA-Z]+)$", msg)
     value = None
     unit_input = None
     unit_output = None
@@ -159,23 +158,27 @@ def convert_units(msg):
     else:
         return("Usage: .convert <value> <units to convert from>" +
                " <units to convert to>")
-    if value == None:
+    if value is None:
         return "Use .help for help"
     return "Unit converter is still in progress!"
 
 
 def quote(user):
-    if user == None:
+    if user is None:
         return "Use .help for help"
     quotes = []
-    with open('/home/kkirchhoff/Programming/Python/IRC-Bot/IRC.log', 'r') as log:
+    with open('/home/kkirchhoff/Programming/Python/IRC-Bot/IRC.log',
+              'r') as log:
         lines = log.readlines()
         for line in lines:
             line = line.split(' ')
-            if len(line) > 1 and user == line[1].strip(':') and line[2][0] != '.':
+            if(len(line) > 1 and user == line[1].strip(':') and
+                    line[2][0] != '.'):
                 quotes.append(' '.join(line[2:]))
     if len(quotes) > 0:
-        return("<%s> %s" %(user, quotes[random.randint(0, len(quotes)-1)].strip('\n')))
+        return("<{0}> {1}".format(user,
+                                  quotes[random.randint(0,
+                                         len(quotes)-1)].strip('\n')))
     else:
         return 'No quotes found'
 
@@ -187,3 +190,33 @@ def decide(options):
     decision_number = int(round(random.random()))
 
     return "Do %s" % make_decision[decision_number].strip(' ')
+
+
+def translate(text):
+    api_key = ""
+    with open('key.txt', 'r') as fh:
+        api_key = fh.read().strip('\n')
+
+    url = "https://translate.yandex.net/api/v1.5/tr.json/"
+
+    language_detection = url + "detect?key={0}&text={1}".format(api_key, text)
+    response = urllib.urlopen(language_detection)
+    detection_results = response.read()
+    detection_json = json.loads(detection_results)
+    response.close()
+
+    if int(detection_json['code']) != 200:
+        return "Failed to detect language"
+
+    lang = detection_json['lang'] + "-en"
+    translator = url + "translate?key={0}&text={1}&lang={2}".format(
+            api_key, text, lang)
+    response = urllib.urlopen(translator)
+    results = response.read()
+    translation = json.loads(results)
+    response.close()
+
+    if int(translation['code']) != 200:
+        return "Failed to translate"
+
+    return "({0}) {1}".format(lang, translation['text'][0])
