@@ -16,18 +16,6 @@ class Bot:
         self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.cooldown = 30.0
 
-    @property
-    def server(self):
-        return self.server
-
-    @property
-    def channels(self):
-        return self.channels
-
-    @property
-    def botnick(self):
-        return self.botnick
-
     # Connect to server
     def connect(self):
         self.ircsock.connect((self.server, 6667))
