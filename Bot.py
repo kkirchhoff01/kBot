@@ -28,24 +28,27 @@ class Bot:
     def botnick(self):
         return self.botnick
 
+    # Connect to server
     def connect(self):
         self.ircsock.connect((self.server, 6667))
 
+    # Send user/nick info to server
     def send_info(self):
         self.ircsock.send("USER " + self.botnick + " " + self.botnick + " " +
                           self.botnick + " :This bot is Kevin's\n")
         self.ircsock.send("NICK " + self.botnick + "\n")
 
+    # Get irc message
     def get_data(self):
         return self.ircsock.recv(2048)
 
-    def sendmsg(self, chan, msg):  # Sends messages to the channel.
+    def sendmsg(self, chan, msg):  # Sends messages to the channel
         self.ircsock.send("PRIVMSG " + chan + " :" + msg + "\n")
 
-    def ping(self):  # Responds to server Pings.
+    def ping(self):  # Responds to server Pings
         self.ircsock.send("PONG :pingis\n")
 
-    def joinchan(self, chan):  # This function is used to join channels.
+    def joinchan(self, chan):  # This function is used to join channels
         self.ircsock.send("JOIN " + chan + "\n")
 
     # A friendly "Hello!"
@@ -55,22 +58,24 @@ class Bot:
     # Check for command
     def command(self, command_msg, user_name, chan):
         # Check for command message
-        command_match = re.match(r"^(\.)(?P<command>[a-zA-Z]+)($|\s(?P<msg>.+$))" +
+        command_match = re.match(r"^(\.)(?P<command>[a-zA-Z]+)" +
+                                 r"($|\s(?P<msg>.+$))" +
                                  r"|^(s/)(?P<word>.+)(/)(?P<sub_word>.+$)",
                                  command_msg)
 
         # Read link if no command found
-        if(command_match == None and
+        if(command_match is None and
            link_reader.check_link(command_msg)):
-            link = link_reader.check_link(command_msg)
+            link = link_reader.check_link(command_msg)  # Get matching link
+            # Extract matching link
             links = [i for i in command_msg.split(' ') if link in i]
-            result = link_reader.read_link(links[0])
+            result = link_reader.read_link(links[0])  # Get info from link
             if result:
-                self.ircsock.send("PRIVMSG " + chan + " :"+ result +"\n")
+                self.ircsock.send("PRIVMSG " + chan + " :" + result + "\n")
             return
-        
+
         # Command found/organize input
-        elif command_match != None:
+        elif command_match is not None:
             command_match = command_match.groupdict()
 
         # No command or link found
@@ -82,17 +87,25 @@ class Bot:
             try:
                 cmd = command_match['command']
                 msg = command_match['msg']
-                result = Commands.get_command(cmd,msg)
+                result = Commands.get_command(cmd, msg)
+
+                # Send normal command
                 if result and cmd not in ['quote', 'draw']:
                     self.ircsock.send("PRIVMSG " + chan +
                                       " :" + user_name +
                                       ": " + result + "\n")
                     return
+
+                # Quote command found
                 elif result and cmd == 'quote':
+                    # Responds without directed username of command sender
                     self.ircsock.send("PRIVMSG " + chan +
                                       " :" + result + "\n")
                     return
+
+                # Draw command found
                 elif result and cmd == 'draw':
+                    # Cooldown prevents spam
                     if (time.time() - self.cooldown) < 30.0:
                         self.ircsock.send("PRIVMSG " + chan +
                                           " :Draw can only be used once every 30 seconds (%.2f seconds left)\n" %
@@ -100,11 +113,13 @@ class Bot:
                         return
                     else:
                         result = result.split('\n')
+                        # Need to send multiple lines
                         for line in result:
                             self.ircsock.send("PRIVMSG " + chan +
                                               " :" + line + "\n")
                         self.cooldown = time.time()
                         return
+
             except ValueError:
                 print result
             except Exception, err:
@@ -117,8 +132,10 @@ class Bot:
         elif(command_match['word'] != None and
              command_match['sub_word'] != None):
             try:
+                # Message with subbed word
                 new_msg = self.last_msg[user_name].replace(
                     command_match['word'], command_match['sub_word'])
+                # Check to make sure there was a word subbed
                 if new_msg != self.last_msg[user_name]:
                     self.ircsock.send("PRIVMSG " + chan + " :" +user_name +
                                       " meant to say: " + new_msg + "\n")
@@ -126,6 +143,7 @@ class Bot:
                 pass
             return
 
+        # Resond to .bots
         elif command_match['command'] == 'bots' and command_match['msg'] == None:
             self.ircsock.send("PRIVMSG " + chan + " :Reporting in! [Python]\n")
             return
@@ -157,11 +175,12 @@ if __name__ == "__main__":
     while 1:
         ircmsg = bot.get_data()  # receive data from the server
         if not ircmsg:  # Check for disconnect
+            # Attempt to reconnect
             try:
                 bot.connect()
                 bot.send_info()
             except:
-                sys.exit(1)
+                sys.exit(1)  # Exit if failed
 
         ircmsg = ircmsg.strip('\n\r')  # removing any unnecessary linebreaks.
 
