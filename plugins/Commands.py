@@ -173,7 +173,7 @@ def quote(user):
         for line in lines:
             line = line.split(' ')
             if(len(line) > 1 and user == line[1].strip(':') and
-                    line[2][0] != '.'):
+                    line[2].split('.')[0] != ''):
                 quotes.append(' '.join(line[2:]))
     if len(quotes) > 0:
         return("<{0}> {1}".format(user,

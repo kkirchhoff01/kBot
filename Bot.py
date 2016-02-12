@@ -180,7 +180,7 @@ if __name__ == "__main__":
 
         # Fun response
         if ircmsg.find(":Hello " + botnick) != -1:
-            bot.hello()
+            bot.hello(msg_channel)
 
         # Checks for ops when someone joins
         if ircmsg.find("JOIN :") != -1:
