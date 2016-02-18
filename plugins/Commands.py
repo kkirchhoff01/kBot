@@ -4,7 +4,7 @@ import re
 import urllib
 import urlparse
 import mechanize
-from plugins.image_ascii import draw_ascii
+from image_ascii import draw_ascii
 
 
 # Match proper command
@@ -163,10 +163,14 @@ def evaluate(msg):
     br.close()
     # Get result
     content = re.findall(r'<p.*?>(.*?)</p.*?>', content, re.DOTALL)
+    print content
 
     # If code ran properly return output
-    if 'OK' in content[len(content) - 1]:
-        return content[0].strip('\n')
+    if 'OK' in content[len(content)-1]:
+        if len(content[0]) > 0:
+            return content[0].strip('\n')
+        else:
+            return "OK (no output)"
     else:
         return content[len(content)-1].strip('\n')
 
