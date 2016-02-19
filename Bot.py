@@ -59,7 +59,7 @@ class Bot:
             links = [i for i in command_msg.split(' ') if link in i]
             result = link_reader.read_link(links[0])  # Get info from link
             if result:
-                self.ircsock.send("PRIVMSG " + chan + " :" + result + "\n")
+                self.sendmsg(chan, result)
             return
 
         # Command found/organize input
@@ -79,32 +79,28 @@ class Bot:
 
                 # Send normal command
                 if result and cmd not in ['quote', 'draw']:
-                    self.ircsock.send("PRIVMSG " + chan +
-                                      " :" + user_name +
-                                      ": " + result + "\n")
+                    self.sendmsg(chan, user_name + ": " + result)
                     return
 
                 # Quote command found
                 elif result and cmd == 'quote':
                     # Responds without directed username of command sender
-                    self.ircsock.send("PRIVMSG " + chan +
-                                      " :" + result + "\n")
+                    self.sendmsg(chan, result)
                     return
 
                 # Draw command found
                 elif result and cmd == 'draw':
                     # Cooldown prevents spam
                     if (time.time() - self.cooldown) < 30.0:
-                        self.ircsock.send("PRIVMSG " + chan +
-                                          " :Draw can only be used once every 30 seconds (%.2f seconds left)\n" %
+                        self.sendmsg(chan,
+                                     "Draw can only be used once every 30 seconds (%.2f seconds left)" %
                                           (30.0 - (time.time() - self.cooldown)))
                         return
                     else:
                         result = result.split('\n')
                         # Need to send multiple lines
                         for line in result:
-                            self.ircsock.send("PRIVMSG " + chan +
-                                              " :" + line + "\n")
+                            self.sendmsg(chan, line)
                         self.cooldown = time.time()
                         return
 
@@ -113,27 +109,25 @@ class Bot:
             except Exception, err:
                 print traceback.print_stack()
                 print err
-                self.ircsock.send("PRIVMSG " + chan +
-                                  " :Something went wrong!\n")
+                self.ircsock.send(chan, "Something went wrong!")
 
         # Sub string
-        elif(command_match['word'] != None and
-             command_match['sub_word'] != None):
+        elif(command_match['word'] is not None and
+             command_match['sub_word'] is not None):
             try:
                 # Message with subbed word
                 new_msg = self.last_msg[user_name].replace(
                     command_match['word'], command_match['sub_word'])
                 # Check to make sure there was a word subbed
                 if new_msg != self.last_msg[user_name]:
-                    self.ircsock.send("PRIVMSG " + chan + " :" +user_name +
-                                      " meant to say: " + new_msg + "\n")
+                    self.sendmsg(chan, user_name + " meant to say: " + new_msg)
             except KeyError:
                 pass
             return
 
         # Resond to .bots
-        elif command_match['command'] == 'bots' and command_match['msg'] == None:
-            self.ircsock.send("PRIVMSG " + chan + " :Reporting in! [Python]\n")
+        elif command_match['command'] == 'bots' and command_match['msg'] is None:
+            self.sendmsg(chan, "Reporting in! [Python]")
             return
 
     # Logger
@@ -147,9 +141,11 @@ class Bot:
         with open('operators.list', 'r') as o:
             if name in o.read().strip("\n"):
                 self.ircsock.send("MODE " + chan + " +o " + name + "\n")
-                self.ircsock.send("PRIVMSG " + chan + " :Hey!\n")
+                self.sendmsg(chan, "Hey!")
 
 if __name__ == "__main__":
+    import sys
+
     bot = Bot()
     bot.connect()
     bot.send_info()

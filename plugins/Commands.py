@@ -163,14 +163,16 @@ def evaluate(msg):
     br.close()
     # Get result
     content = re.findall(r'<p.*?>(.*?)</p.*?>', content, re.DOTALL)
-    print content
 
     # If code ran properly return output
     if 'OK' in content[len(content)-1]:
+        # Check for output
         if len(content[0]) > 0:
             return content[0].strip('\n')
         else:
             return "OK (no output)"
+
+    # Code did not run properly
     else:
         return content[len(content)-1].strip('\n')
 
