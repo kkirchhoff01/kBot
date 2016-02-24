@@ -1,6 +1,4 @@
-import urllib
-import urllib2
-import json
+import requests
 import re
 from bs4 import BeautifulSoup
 
@@ -22,14 +20,18 @@ def check_link(msg):
 def read_link(url):
     try:
         # Open link and get response
-        response = urllib.urlopen(url)
-        results = response.read()
-        response.close()
+        response = requests.get(url)
+        if response.status_code != 200:
+            return "[URL] Status code {0}".format(response.status_code)
 
-        info = response.info()
+        # results = response.read()
+        # response.close()
+
+        content_type = response.headers.get('Content-Type')
+        results = response.content
 
         # URL is text/html web page
-        if info.type == 'text/html':
+        if 'text/html' in content_type:
             # Use BeautifulSoup to get info
             soup = BeautifulSoup(results)
             title_string = re.sub('[\r|\n]', ' ', soup.title.string)
@@ -45,17 +47,17 @@ def read_link(url):
         # URL is not HTML (download or image)
         else:
             # Get size of content
-            content_size = float(info.getheaders('Content-Length')[0])
+            content_size = float(response.headers.get('Content-Length'))
 
             # Format byte size to KB/MB/etc.
             if content_size < 1000.0:
-                return "[%s] %.2f B" % (info.type, content_size)
+                return "[%s] %.2f B" % (content_type, content_size)
             elif content_size > 1000.0 and content_size < 1000000:
-                return "[%s] %.2f KB" % (info.type, content_size/1000.0)
+                return "[%s] %.2f KB" % (content_type, content_size/1000.0)
             elif content_size > 1000000.0 and content_size < 1000000000.0:
-                return "[%s] %.2f MB" % (info.type, content_size/1000000.0)
+                return "[%s] %.2f MB" % (content_type, content_size/1000000.0)
             elif content_size > 1000000000.0:
-                return "[%s] %.2f GB" % (info.type, content_size/1000000000.0)
+                return "[%s] %.2f GB" % (content_type, content_size/1000000000.0)
 
     except IOError, exc:  # Bad link
         return "[URL] Site not found"
