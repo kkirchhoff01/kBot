@@ -20,12 +20,10 @@ def check_link(msg):
 def read_link(url):
     try:
         # Open link and get response
-        response = requests.get(url)
+        response = requests.get(url, timeout=0.25)
+
         if response.status_code != 200:
             return "[URL] Status code {0}".format(response.status_code)
-
-        # results = response.read()
-        # response.close()
 
         content_type = response.headers.get('Content-Type')
         results = response.content
@@ -41,7 +39,8 @@ def read_link(url):
                 title_string = title_string[:200] + "..."
 
             # Return page info
-            url_title = "[URL] {0}".format(title_string)
+            url_title = "[URL] {0}".format(
+                    ''.join([t for t in title_string if ord(t) < 128]))
             return url_title.encode('utf-8')
 
         # URL is not HTML (download or image)
@@ -53,14 +52,17 @@ def read_link(url):
             if content_size < 1000.0:
                 return "[%s] %.2f B" % (content_type, content_size)
             elif content_size > 1000.0 and content_size < 1000000:
-                return "[%s] %.2f KB" % (content_type, content_size/1000.0)
+                return "[%s] %.2f KB" % (content_type, content_size/10.**3)
             elif content_size > 1000000.0 and content_size < 1000000000.0:
-                return "[%s] %.2f MB" % (content_type, content_size/1000000.0)
+                return "[%s] %.2f MB" % (content_type, content_size/10.**6)
             elif content_size > 1000000000.0:
-                return "[%s] %.2f GB" % (content_type, content_size/1000000000.0)
+                return "[%s] %.2f GB" % (content_type, content_size/10.**9)
 
     except IOError, exc:  # Bad link
-        return "[URL] Site not found"
+        if type(exc).__name__ == "ConnectionError":
+            return "[URL] Read timed out"
+        else:
+            return "[URL] Site not found"
 
     except AttributeError:  # No title information
         return "[URL] (No title)"
