@@ -4,6 +4,7 @@ import re
 import urllib
 import urlparse
 import mechanize
+import requests
 from image_ascii import draw_ascii
 
 
@@ -34,6 +35,8 @@ def get_command(cmd, msg):
         return draw_ascii(msg)
     elif cmd == 'translate':
         return translate(msg)
+    elif cmd == 'stock':
+        return stock(msg)
     else:
         return False
 
@@ -41,7 +44,8 @@ def get_command(cmd, msg):
 # Return command list
 def get_command_list():
     return ['help', 'commands', 'g', 'w', 'about',  'convert',
-            'eval', 'def', 'quote', 'decide', 'draw', 'translate']
+            'eval', 'def', 'quote', 'decide', 'draw', 'translate',
+            'stock']
 
 
 # Google Search
@@ -282,3 +286,19 @@ def translate(text):
 
     # Return translation
     return "({0}) {1}".format(lang, translation['text'][0])
+
+def stock(stock):
+    stock = stock.upper()
+    url = "http://finance.yahoo.com/d/quotes.csv?s={0}&f=l1".format(stock)
+
+    try:
+        response = requests.get(url)
+    except requests.exceptions.ConnectionError:
+        return 'Connection error'
+    results = response.text.encode('utf-8')
+    if 'N/A' not in results:
+        final_results =  "Last price of {0} was ${1}".format(stock, results)
+    else:
+        final_results =  "Last price of {0} was {1}".format(stock, results)
+
+    return final_results

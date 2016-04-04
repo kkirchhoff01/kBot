@@ -7,6 +7,7 @@ kBot is an IRC bot written in Python.
 - Draw images in colored ascii art
 - Code evaluation
 - Quote users
+- Stock prices
 - Decide (randomly choose between two options)
 - Foreign language translation
 - Link reader
